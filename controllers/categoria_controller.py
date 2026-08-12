@@ -1,5 +1,5 @@
 from models.categoria import Categoria
-from database.connection import conectar
+from config.database import conectar
 
 class CategoriaController:
 

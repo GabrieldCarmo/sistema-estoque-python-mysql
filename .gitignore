@@ -1,0 +1,54 @@
+# --- Python Runtime Artifacts ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Virtual Environments ---
+.venv/
+venv/
+ENV/
+env/
+
+# --- Tkinter & GUI Specific Cache / Logs ---
+# If your application writes local runtime configurations, databases, or logs
+*.log
+*.local
+.tcl_history
+
+# --- Distribution / Packaging / Executables ---
+# Generated when converting your Tkinter app to a standalone executable (.exe / .app)
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- PyInstaller / cx_Freeze Specific ---
+# PyInstaller overrides standard output configurations during executable builds
+*.manifest
+*.spec
+
+# --- IDEs and Editors ---
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# --- OS Generated Files ---
+.DS_Store
+Thumbs.db
