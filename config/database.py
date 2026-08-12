@@ -3,5 +3,5 @@ def conectar():
         host="localhost",
         user="root",
         password="12345678",
-        database="sistemaestoque"
+        database="estoque"
     )
