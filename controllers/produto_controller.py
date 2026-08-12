@@ -7,7 +7,7 @@ class ProdutoController:
         produto = Produto(None, nome, preco, quantidade, categoria_id)
         conexao = conectar()
         cursor = conexao.cursor()
-        cursor.callproc("cadastrar_produto", (produto.nome, produto.preco, produto.quantidade, produto.categoria_id))
+        cursor.callproc("cadastrar_produto", (produto.nome, produto.preco, produto.quantidade, produto.categoria_id,))
         conexao.commit()
         cursor.close()
         conexao.close()

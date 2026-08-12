@@ -7,24 +7,24 @@ class CategoriaController:
         categoria = Categoria(None, nome)
         conexao = conectar()
         cursor = conexao.cursor()
-        cursor.callproc("cadastrar_categoria", (categoria.nome))
+        cursor.callproc("cadastrar_categoria", (categoria.nome,))
         conexao.commit()
         cursor.close()
         conexao.close()
-
+        return True
+        
     def listar(self):
         conexao = conectar()
         cursor = conexao.cursor()           
-        cursor.execute("SELECT * FROM produtos")
+        cursor.execute("SELECT * FROM categoria")
         dados = cursor.fetchall()
         cursor.close()
         conexao.close()
-        produtos = []
+        categorias = []
         for dado in dados:
-            produto = Produto(dado[0], dado[1], dado[2], dado[3], dado[4]
-            )
-        produtos.append(produto)
-        return produtos
+            categoria = Categoria(dado[0], dado[1])
+            categorias.append(categoria)
+        return categorias
 
     def buscar(self, id):
         conexao = conectar()

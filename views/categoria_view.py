@@ -122,3 +122,12 @@ class CategoriaView:
                 tk.END,
                 f"{categoria.id} - {categoria.nome}"
             )
+
+    def buscar(self):
+        pass
+
+    def editar(self):
+        pass
+
+    def excluir(self):
+        pass
