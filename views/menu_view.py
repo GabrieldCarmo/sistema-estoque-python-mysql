@@ -5,9 +5,10 @@ from views.produto_view import ProdutoView
 
 class MenuView:
 
-    def __init__(self, root, categoria_controller):
+    def __init__(self, root, categoria_controller, produto_controller):
         self.root = root
         self.categoria_controller = categoria_controller
+        self.produto_controller = produto_controller
 
         self.configurar_janela()
         self.criar_interface()
