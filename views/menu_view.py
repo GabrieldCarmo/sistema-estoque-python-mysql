@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from views.categoria_view import CategoriaView
+from views.produto_view import ProdutoView
 
 
 class MenuView:
@@ -237,11 +238,11 @@ class MenuView:
 
         self.limpar_conteudo()
 
-        ctk.CTkLabel(
+        ProdutoView(
             self.conteudo,
-            text="Produtos",
-            font=("Arial", 28, "bold")
-        ).pack(pady=40)
+            self.categoria_controller,
+            self.produto_controller
+        )
 
     def abrir_estoque(self):
 
