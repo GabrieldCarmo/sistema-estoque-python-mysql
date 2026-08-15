@@ -1,4 +1,4 @@
-import tkinter as tk
+import customtkinter as ctk
 from views.categoria_view import CategoriaView
 
 
@@ -8,45 +8,265 @@ class MenuView:
         self.root = root
         self.categoria_controller = categoria_controller
 
-        self.root.title("Sistema de Estoque")
-        self.root.geometry("500x400")
-
+        self.configurar_janela()
         self.criar_interface()
+
+    def configurar_janela(self):
+
+        self.root.title("Sistema de Estoque")
+        self.root.geometry("1000x600")
+        self.root.minsize(900, 550)
+
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
 
     def criar_interface(self):
 
-        titulo = tk.Label(
-            self.root,
-            text="Sistema de Estoque",
-            font=("Arial", 20)
-        )
-        titulo.pack(pady=30)
+        # Sidebar
 
-        botao_categoria = tk.Button(
+        self.sidebar = ctk.CTkFrame(
             self.root,
-            text="Categorias",
-            width=20,
-            command=self.abrir_categorias
+            width=210,
+            corner_radius=0
         )
-        botao_categoria.pack(pady=10)
 
-        botao_produto = tk.Button(
-            self.root,
-            text="Produtos",
-            width=20
+        self.sidebar.pack(
+            side="left",
+            fill="y"
         )
-        botao_produto.pack(pady=10)
 
-        botao_sair = tk.Button(
-            self.root,
+        self.sidebar.pack_propagate(False)
+
+        titulo = ctk.CTkLabel(
+            self.sidebar,
+            text="ESTOQUE",
+            font=("Arial", 24, "bold")
+        )
+
+        titulo.pack(pady=(40, 40))
+
+        self.criar_botao_menu(
+            "Dashboard",
+            self.abrir_dashboard
+        )
+
+        self.criar_botao_menu(
+            "Categorias",
+            self.abrir_categorias
+        )
+
+        self.criar_botao_menu(
+            "Produtos",
+            self.abrir_produtos
+        )
+
+        self.criar_botao_menu(
+            "Estoque",
+            self.abrir_estoque
+        )
+
+        self.criar_botao_menu(
+            "Movimentações",
+            self.abrir_movimentacoes
+        )
+
+        self.criar_botao_menu(
+            "Relatórios",
+            self.abrir_relatorios
+        )
+
+        botao_sair = ctk.CTkButton(
+            self.sidebar,
             text="Sair",
-            width=20,
+            height=40,
+            fg_color="transparent",
+            border_width=1,
             command=self.root.destroy
         )
-        botao_sair.pack(pady=10)
+
+        botao_sair.pack(
+            side="bottom",
+            padx=20,
+            pady=30,
+            fill="x"
+        )
+
+        # Conteúdo
+
+        self.conteudo = ctk.CTkFrame(
+            self.root,
+            corner_radius=0
+        )
+
+        self.conteudo.pack(
+            side="right",
+            fill="both",
+            expand=True
+        )
+
+        self.abrir_dashboard()
+
+    def criar_botao_menu(self, texto, comando):
+
+        botao = ctk.CTkButton(
+            self.sidebar,
+            text=texto,
+            height=40,
+            command=comando
+        )
+
+        botao.pack(
+            padx=20,
+            pady=6,
+            fill="x"
+        )
+
+    def limpar_conteudo(self):
+
+        for widget in self.conteudo.winfo_children():
+            widget.destroy()
+
+    # Dashboard
+
+    def abrir_dashboard(self):
+
+        self.limpar_conteudo()
+
+        titulo = ctk.CTkLabel(
+            self.conteudo,
+            text="Dashboard",
+            font=("Arial", 28, "bold")
+        )
+
+        titulo.pack(
+            anchor="w",
+            padx=40,
+            pady=(40, 5)
+        )
+
+        subtitulo = ctk.CTkLabel(
+            self.conteudo,
+            text="Visão geral do seu estoque",
+            font=("Arial", 15)
+        )
+
+        subtitulo.pack(
+            anchor="w",
+            padx=40
+        )
+
+        cards = ctk.CTkFrame(
+            self.conteudo,
+            fg_color="transparent"
+        )
+
+        cards.pack(
+            fill="x",
+            padx=30,
+            pady=40
+        )
+
+        self.criar_card(
+            cards,
+            "Produtos",
+            "0",
+            0
+        )
+
+        self.criar_card(
+            cards,
+            "Categorias",
+            "0",
+            1
+        )
+
+        self.criar_card(
+            cards,
+            "Estoque baixo",
+            "0",
+            2
+        )
+
+    def criar_card(self, parent, titulo, valor, coluna):
+
+        card = ctk.CTkFrame(
+            parent,
+            height=120
+        )
+
+        card.grid(
+            row=0,
+            column=coluna,
+            padx=10,
+            sticky="nsew"
+        )
+
+        parent.grid_columnconfigure(
+            coluna,
+            weight=1
+        )
+
+        ctk.CTkLabel(
+            card,
+            text=titulo,
+            font=("Arial", 14)
+        ).pack(pady=(20, 5))
+
+        ctk.CTkLabel(
+            card,
+            text=valor,
+            font=("Arial", 28, "bold")
+        ).pack()
+
+    # Categorias
 
     def abrir_categorias(self):
+
+        self.limpar_conteudo()
+
         CategoriaView(
-            self.root,
+            self.conteudo,
             self.categoria_controller
         )
+
+    # Outras
+
+    def abrir_produtos(self):
+
+        self.limpar_conteudo()
+
+        ctk.CTkLabel(
+            self.conteudo,
+            text="Produtos",
+            font=("Arial", 28, "bold")
+        ).pack(pady=40)
+
+    def abrir_estoque(self):
+
+        self.limpar_conteudo()
+
+        ctk.CTkLabel(
+            self.conteudo,
+            text="Estoque",
+            font=("Arial", 28, "bold")
+        ).pack(pady=40)
+
+    def abrir_movimentacoes(self):
+
+        self.limpar_conteudo()
+
+        ctk.CTkLabel(
+            self.conteudo,
+            text="Movimentações",
+            font=("Arial", 28, "bold")
+        ).pack(pady=40)
+
+    def abrir_relatorios(self):
+
+        self.limpar_conteudo()
+
+        ctk.CTkLabel(
+            self.conteudo,
+            text="Relatórios",
+            font=("Arial", 28, "bold")
+        ).pack(pady=40)

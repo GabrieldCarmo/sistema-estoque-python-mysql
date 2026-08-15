@@ -1,10 +1,10 @@
-import tkinter as tk
+import customtkinter as ctk
 
 from controllers.categoria_controller import CategoriaController
 from views.menu_view import MenuView
 
 
-root = tk.Tk()
+root = ctk.CTk()
 
 categoria_controller = CategoriaController()
 

@@ -1,133 +1,299 @@
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import messagebox
 
 
 class CategoriaView:
 
-    def __init__(self, root, controller):
+    def __init__(self, parent, controller):
 
         self.controller = controller
 
-        self.janela = tk.Toplevel(root)
-        self.janela.title("Categorias")
-        self.janela.geometry("500x400")
+        self.frame = ctk.CTkFrame(
+            parent,
+            fg_color="transparent"
+        )
+
+        self.frame.pack(
+            fill="both",
+            expand=True
+        )
 
         self.criar_interface()
 
     def criar_interface(self):
 
-        tk.Label(
-            self.janela,
+        titulo = ctk.CTkLabel(
+            self.frame,
             text="Categorias",
-            font=("Arial", 18)
-        ).pack(pady=20)
+            font=("Arial", 28, "bold")
+        )
 
-        tk.Button(
-            self.janela,
+        titulo.pack(
+            anchor="w",
+            padx=40,
+            pady=(40, 20)
+        )
+
+        # Botões
+
+        botoes = ctk.CTkFrame(
+            self.frame,
+            fg_color="transparent"
+        )
+
+        botoes.pack(
+            fill="x",
+            padx=40
+        )
+
+        ctk.CTkButton(
+            botoes,
             text="Cadastrar",
-            width=20,
             command=self.cadastrar
-        ).pack(pady=5)
+        ).pack(
+            side="left",
+            padx=(0, 10)
+        )
 
-        tk.Button(
-            self.janela,
-            text="Listar",
-            width=20,
-            command=self.listar
-        ).pack(pady=5)
-
-        tk.Button(
-            self.janela,
+        ctk.CTkButton(
+            botoes,
             text="Buscar",
-            width=20,
             command=self.buscar
-        ).pack(pady=5)
+        ).pack(
+            side="left",
+            padx=10
+        )
 
-        tk.Button(
-            self.janela,
-            text="Editar",
-            width=20,
-            command=self.editar
-        ).pack(pady=5)
-
-        tk.Button(
-            self.janela,
+        ctk.CTkButton(
+            botoes,
             text="Excluir",
-            width=20,
             command=self.excluir
-        ).pack(pady=5)
+        ).pack(
+            side="left",
+            padx=10
+        )
+
+        # Lista
+
+        self.lista = ctk.CTkTextbox(
+            self.frame,
+            font=("Arial", 14)
+        )
+
+        self.lista.pack(
+            fill="both",
+            expand=True,
+            padx=40,
+            pady=30
+        )
+
+        self.lista.configure(
+            state="disabled"
+        )
+
+        self.listar()
+
+    # Cadastrar
 
     def cadastrar(self):
 
-        janela = tk.Toplevel(self.janela)
+        janela = ctk.CTkToplevel(self.frame)
+
         janela.title("Cadastrar Categoria")
+        janela.geometry("400x250")
+        janela.resizable(False, False)
 
-        tk.Label(
+        ctk.CTkLabel(
             janela,
-            text="Nome:"
-        ).pack(pady=10)
+            text="Nova Categoria",
+            font=("Arial", 22, "bold")
+        ).pack(pady=(30, 20))
 
-        entrada = tk.Entry(janela)
-        entrada.pack()
+        entrada = ctk.CTkEntry(
+            janela,
+            width=300,
+            placeholder_text="Nome da categoria"
+        )
+
+        entrada.pack(pady=10)
+
+        entrada.focus()
 
         def salvar():
 
-            nome = entrada.get()
+            nome = entrada.get().strip()
 
-            resultado = self.controller.cadastrar(nome)
+            if not nome:
 
-            if resultado:
-                messagebox.showinfo(
-                    "Sucesso",
-                    "Categoria cadastrada!"
+                messagebox.showwarning(
+                    "Atenção",
+                    "Informe o nome da categoria.",
+                    parent=janela
                 )
 
-                janela.destroy()
+                return
 
-            else:
+            try:
+
+                resultado = self.controller.cadastrar(nome)
+
+                if resultado:
+
+                    messagebox.showinfo(
+                        "Sucesso",
+                        "Categoria cadastrada com sucesso!",
+                        parent=janela
+                    )
+
+                    janela.destroy()
+                    self.listar()
+
+            except Exception as erro:
+
                 messagebox.showerror(
                     "Erro",
-                    "Não foi possível cadastrar."
+                    f"Não foi possível cadastrar.\n\n{erro}",
+                    parent=janela
                 )
 
-        tk.Button(
+        ctk.CTkButton(
             janela,
             text="Salvar",
+            width=300,
+            height=40,
             command=salvar
-        ).pack(pady=15)
+        ).pack(pady=20)
+
+    # Listar
 
     def listar(self):
 
-        categorias = self.controller.listar()
+        try:
 
-        janela = tk.Toplevel(self.janela)
-        janela.title("Categorias cadastradas")
-        janela.geometry("400x300")
+            categorias = self.controller.listar()
 
-        lista = tk.Listbox(
-            janela,
-            width=50
-        )
-
-        lista.pack(
-            padx=20,
-            pady=20,
-            fill="both",
-            expand=True
-        )
-
-        for categoria in categorias:
-
-            lista.insert(
-                tk.END,
-                f"{categoria.id} - {categoria.nome}"
+            self.lista.configure(
+                state="normal"
             )
 
+            self.lista.delete(
+                "1.0",
+                "end"
+            )
+
+            if not categorias:
+
+                self.lista.insert(
+                    "end",
+                    "Nenhuma categoria cadastrada."
+                )
+
+            else:
+
+                for categoria in categorias:
+
+                    self.lista.insert(
+                        "end",
+                        f"ID: {categoria.id}    |    "
+                        f"Nome: {categoria.nome}\n"
+                    )
+
+            self.lista.configure(
+                state="disabled"
+            )
+
+        except Exception as erro:
+
+            messagebox.showerror(
+                "Erro",
+                f"Não foi possível carregar as categorias.\n\n{erro}",
+                parent=self.frame
+            )
+
+    # Buscar
+
     def buscar(self):
-        pass
+
+        janela = ctk.CTkToplevel(self.frame)
+
+        janela.title("Buscar Categoria")
+        janela.geometry("400x230")
+        janela.resizable(False, False)
+
+        ctk.CTkLabel(
+            janela,
+            text="Buscar Categoria",
+            font=("Arial", 22, "bold")
+        ).pack(pady=(30, 20))
+
+        entrada = ctk.CTkEntry(
+            janela,
+            width=300,
+            placeholder_text="ID da categoria"
+        )
+
+        entrada.pack(pady=10)
+
+        def realizar_busca():
+
+            try:
+
+                id_categoria = int(
+                    entrada.get()
+                )
+
+                categoria = self.controller.buscar(
+                    id_categoria
+                )
+
+                if categoria:
+
+                    messagebox.showinfo(
+                        "Categoria encontrada",
+                        f"ID: {categoria.id}\n"
+                        f"Nome: {categoria.nome}",
+                        parent=janela
+                    )
+
+                else:
+
+                    messagebox.showwarning(
+                        "Não encontrada",
+                        "Categoria não encontrada.",
+                        parent=janela
+                    )
+
+            except ValueError:
+
+                messagebox.showwarning(
+                    "Atenção",
+                    "Digite um ID válido.",
+                    parent=janela
+                )
+
+        ctk.CTkButton(
+            janela,
+            text="Buscar",
+            width=300,
+            command=realizar_busca
+        ).pack(pady=20)
+
+    # Editar
 
     def editar(self):
-        pass
+
+        messagebox.showinfo(
+            "Em desenvolvimento",
+            "A função de editar ainda será implementada.",
+            parent=self.frame
+        )
+
+    # Excluir
 
     def excluir(self):
-        pass
+
+        messagebox.showinfo(
+            "Em desenvolvimento",
+            "A função de excluir ainda será implementada.",
+            parent=self.frame
+        )

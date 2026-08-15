@@ -1,9 +1,10 @@
 from models.categoria import Categoria
 from config.database import conectar
 
+
 class CategoriaRepository:
 
-    def cadastrar(self, nome):
+    def cadastrar(self, categoria):
         conexao = conectar()
         cursor = conexao.cursor()
 
