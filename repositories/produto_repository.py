@@ -75,6 +75,24 @@ class ProdutoRepository:
             produtos.append(Produto(dado[0], dado[1], dado[2], dado[3], dado[4]))
             
         return produtos
+    
+    def busca_por_id(self, id):
+        conexao = conectar()
+        cursor = conexao.cursor()
+
+        sql = "SELECT * FROM produto WHERE id=%s"
+        valores = (id,)
+        cursor.execute(sql, valores)
+
+        dado = cursor.fetchone()
+
+        conexao.close()
+        cursor.close()
+
+        if dado is None:
+            return None
+
+        return Produto(dado[0], dado[1])  
 
     def excluir(self, id):
         conexao = conectar()

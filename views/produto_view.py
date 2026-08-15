@@ -4,12 +4,7 @@ from tkinter import messagebox
 
 class ProdutoView:
 
-    def __init__(
-        self,
-        parent,
-        controller,
-        categoria_controller
-    ):
+    def __init__(self, parent, controller, categoria_controller):
 
         self.controller = controller
         self.categoria_controller = categoria_controller
@@ -24,17 +19,15 @@ class ProdutoView:
             expand=True
         )
 
-        # Guarda as categorias para transformar
-        # "Eletrônicos" -> ID 1, por exemplo.
         self.categorias = []
 
         self.criar_interface()
 
-    def criar_interface(self):
+    # ==================================================
+    # INTERFACE
+    # ==================================================
 
-        # =========================
-        # TÍTULO
-        # =========================
+    def criar_interface(self):
 
         titulo = ctk.CTkLabel(
             self.frame,
@@ -47,10 +40,6 @@ class ProdutoView:
             padx=40,
             pady=(40, 20)
         )
-
-        # =========================
-        # BOTÕES
-        # =========================
 
         botoes = ctk.CTkFrame(
             self.frame,
@@ -65,7 +54,7 @@ class ProdutoView:
         ctk.CTkButton(
             botoes,
             text="Cadastrar",
-            command=self.mostrar_cadastro
+            command=self.cadastrar
         ).pack(
             side="left",
             padx=(0, 10)
@@ -74,7 +63,7 @@ class ProdutoView:
         ctk.CTkButton(
             botoes,
             text="Buscar",
-            command=self.mostrar_busca
+            command=self.buscar
         ).pack(
             side="left",
             padx=10
@@ -83,7 +72,7 @@ class ProdutoView:
         ctk.CTkButton(
             botoes,
             text="Editar",
-            command=self.mostrar_edicao
+            command=self.editar
         ).pack(
             side="left",
             padx=10
@@ -92,7 +81,7 @@ class ProdutoView:
         ctk.CTkButton(
             botoes,
             text="Excluir",
-            command=self.mostrar_exclusao
+            command=self.excluir
         ).pack(
             side="left",
             padx=10
@@ -107,12 +96,11 @@ class ProdutoView:
             padx=10
         )
 
-        # =========================
-        # FORMULÁRIO
-        # =========================
+        # Área onde os formulários aparecem
 
         self.formulario = ctk.CTkFrame(
-            self.frame
+            self.frame,
+            fg_color="transparent"
         )
 
         self.formulario.pack(
@@ -121,9 +109,7 @@ class ProdutoView:
             pady=20
         )
 
-        # =========================
-        # LISTA
-        # =========================
+        # Lista
 
         self.lista = ctk.CTkTextbox(
             self.frame,
@@ -144,7 +130,7 @@ class ProdutoView:
         self.listar()
 
     # ==================================================
-    # LIMPAR FORMULÁRIO
+    # UTILITÁRIOS
     # ==================================================
 
     def limpar_formulario(self):
@@ -152,26 +138,16 @@ class ProdutoView:
         for widget in self.formulario.winfo_children():
             widget.destroy()
 
-    # ==================================================
-    # CARREGAR CATEGORIAS
-    # ==================================================
-
     def carregar_categorias(self):
 
         self.categorias = self.categoria_controller.listar()
 
-        nomes = [
+        return [
             categoria.nome
             for categoria in self.categorias
         ]
 
-        return nomes
-
-    # ==================================================
-    # ENCONTRAR ID DA CATEGORIA
-    # ==================================================
-
-    def encontrar_categoria_id(self, nome):
+    def obter_categoria_id(self, nome):
 
         for categoria in self.categorias:
 
@@ -180,11 +156,66 @@ class ProdutoView:
 
         return None
 
+    def atualizar_lista(self, produtos):
+
+        self.lista.configure(
+            state="normal"
+        )
+
+        self.lista.delete(
+            "1.0",
+            "end"
+        )
+
+        if not produtos:
+
+            self.lista.insert(
+                "end",
+                "Nenhum produto encontrado."
+            )
+
+        else:
+
+            for produto in produtos:
+
+                self.lista.insert(
+                    "end",
+                    f"ID: {produto.id}\n"
+                    f"Nome: {produto.nome}\n"
+                    f"Preço: R$ {produto.preco:.2f}\n"
+                    f"Quantidade: {produto.quantidade}\n"
+                    f"Categoria ID: {produto.categoria_id}\n"
+                    f"{'-' * 50}\n"
+                )
+
+        self.lista.configure(
+            state="disabled"
+        )
+
+    # ==================================================
+    # LISTAR
+    # ==================================================
+
+    def listar(self):
+
+        try:
+
+            produtos = self.controller.listar()
+
+            self.atualizar_lista(produtos)
+
+        except Exception as erro:
+
+            messagebox.showerror(
+                "Erro",
+                f"Não foi possível carregar os produtos.\n\n{erro}"
+            )
+
     # ==================================================
     # CADASTRAR
     # ==================================================
 
-    def mostrar_cadastro(self):
+    def cadastrar(self):
 
         self.limpar_formulario()
 
@@ -197,10 +228,8 @@ class ProdutoView:
         titulo.pack(
             anchor="w",
             padx=20,
-            pady=(15, 10)
+            pady=(10, 15)
         )
-
-        # Nome
 
         entrada_nome = ctk.CTkEntry(
             self.formulario,
@@ -209,12 +238,10 @@ class ProdutoView:
         )
 
         entrada_nome.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
-
-        # Preço
 
         entrada_preco = ctk.CTkEntry(
             self.formulario,
@@ -223,12 +250,10 @@ class ProdutoView:
         )
 
         entrada_preco.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
-
-        # Quantidade
 
         entrada_quantidade = ctk.CTkEntry(
             self.formulario,
@@ -237,16 +262,14 @@ class ProdutoView:
         )
 
         entrada_quantidade.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
 
-        # Categoria
+        categorias = self.carregar_categorias()
 
-        nomes_categorias = self.carregar_categorias()
-
-        if not nomes_categorias:
+        if not categorias:
 
             ctk.CTkLabel(
                 self.formulario,
@@ -260,26 +283,22 @@ class ProdutoView:
 
             return
 
-        categoria_selecionada = ctk.StringVar(
+        categoria_var = ctk.StringVar(
             value="Selecione uma categoria"
         )
 
         combo_categoria = ctk.CTkComboBox(
             self.formulario,
             width=350,
-            variable=categoria_selecionada,
-            values=nomes_categorias
+            values=categorias,
+            variable=categoria_var
         )
 
         combo_categoria.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
-
-        # =========================
-        # BOTÕES
-        # =========================
 
         botoes = ctk.CTkFrame(
             self.formulario,
@@ -289,7 +308,7 @@ class ProdutoView:
         botoes.pack(
             anchor="w",
             padx=20,
-            pady=(10, 15)
+            pady=15
         )
 
         def salvar():
@@ -297,7 +316,6 @@ class ProdutoView:
             nome = entrada_nome.get().strip()
             preco_texto = entrada_preco.get().strip()
             quantidade_texto = entrada_quantidade.get().strip()
-            categoria_nome = categoria_selecionada.get()
 
             if not nome:
 
@@ -338,8 +356,8 @@ class ProdutoView:
 
                 return
 
-            categoria_id = self.encontrar_categoria_id(
-                categoria_nome
+            categoria_id = self.obter_categoria_id(
+                categoria_var.get()
             )
 
             if categoria_id is None:
@@ -370,13 +388,6 @@ class ProdutoView:
                     self.limpar_formulario()
                     self.listar()
 
-                else:
-
-                    messagebox.showerror(
-                        "Erro",
-                        "Não foi possível cadastrar o produto."
-                    )
-
             except Exception as erro:
 
                 messagebox.showerror(
@@ -405,75 +416,10 @@ class ProdutoView:
         )
 
     # ==================================================
-    # LISTAR
+    # BUSCAR POR NOME
     # ==================================================
 
-    def listar(self):
-
-        try:
-
-            produtos = self.controller.listar()
-
-            self.lista.configure(
-                state="normal"
-            )
-
-            self.lista.delete(
-                "1.0",
-                "end"
-            )
-
-            if not produtos:
-
-                self.lista.insert(
-                    "end",
-                    "Nenhum produto cadastrado."
-                )
-
-            else:
-
-                self.lista.insert(
-                    "end",
-                    "ID        NOME                         "
-                    "PREÇO       QTD       CATEGORIA\n"
-                )
-
-                self.lista.insert(
-                    "end",
-                    "-" * 90 + "\n"
-                )
-
-                for produto in produtos:
-
-                    self.lista.insert(
-                        "end",
-                        f"{produto.id:<10}"
-                        f"{produto.nome:<30}"
-                        f"R$ {produto.preco:<10}"
-                        f"{produto.quantidade:<10}"
-                        f"{produto.categoria_id}\n"
-                    )
-
-            self.lista.configure(
-                state="disabled"
-            )
-
-        except Exception as erro:
-
-            self.lista.configure(
-                state="disabled"
-            )
-
-            messagebox.showerror(
-                "Erro",
-                f"Não foi possível carregar os produtos.\n\n{erro}"
-            )
-
-    # ==================================================
-    # BUSCAR
-    # ==================================================
-
-    def mostrar_busca(self):
+    def buscar(self):
 
         self.limpar_formulario()
 
@@ -486,19 +432,19 @@ class ProdutoView:
         titulo.pack(
             anchor="w",
             padx=20,
-            pady=(15, 10)
+            pady=(10, 15)
         )
 
         entrada = ctk.CTkEntry(
             self.formulario,
             width=350,
-            placeholder_text="ID do produto"
+            placeholder_text="Nome do produto"
         )
 
         entrada.pack(
+            anchor="w",
             padx=20,
-            pady=10,
-            anchor="w"
+            pady=5
         )
 
         botoes = ctk.CTkFrame(
@@ -509,44 +455,27 @@ class ProdutoView:
         botoes.pack(
             anchor="w",
             padx=20,
-            pady=(5, 15)
+            pady=15
         )
 
         def realizar_busca():
 
-            try:
+            nome = entrada.get().strip()
 
-                id_produto = int(
-                    entrada.get().strip()
-                )
-
-            except ValueError:
+            if not nome:
 
                 messagebox.showwarning(
                     "Atenção",
-                    "Digite um ID válido."
+                    "Informe o nome do produto."
                 )
 
                 return
 
             try:
 
-                produto = self.controller.buscar(
-                    id_produto
-                )
+                produtos = self.controller.buscar(nome)
 
-                if produto:
-
-                    self.mostrar_resultado_busca(
-                        produto
-                    )
-
-                else:
-
-                    messagebox.showwarning(
-                        "Não encontrado",
-                        "Produto não encontrado."
-                    )
+                self.atualizar_lista(produtos)
 
             except Exception as erro:
 
@@ -576,86 +505,10 @@ class ProdutoView:
         )
 
     # ==================================================
-    # RESULTADO BUSCA
-    # ==================================================
-
-    def mostrar_resultado_busca(self, produto):
-
-        self.limpar_formulario()
-
-        titulo = ctk.CTkLabel(
-            self.formulario,
-            text="Produto encontrado",
-            font=("Arial", 18, "bold")
-        )
-
-        titulo.pack(
-            anchor="w",
-            padx=20,
-            pady=(15, 10)
-        )
-
-        ctk.CTkLabel(
-            self.formulario,
-            text=f"ID: {produto.id}"
-        ).pack(
-            anchor="w",
-            padx=20,
-            pady=3
-        )
-
-        ctk.CTkLabel(
-            self.formulario,
-            text=f"Nome: {produto.nome}"
-        ).pack(
-            anchor="w",
-            padx=20,
-            pady=3
-        )
-
-        ctk.CTkLabel(
-            self.formulario,
-            text=f"Preço: R$ {produto.preco}"
-        ).pack(
-            anchor="w",
-            padx=20,
-            pady=3
-        )
-
-        ctk.CTkLabel(
-            self.formulario,
-            text=f"Quantidade: {produto.quantidade}"
-        ).pack(
-            anchor="w",
-            padx=20,
-            pady=3
-        )
-
-        ctk.CTkLabel(
-            self.formulario,
-            text=f"Categoria ID: {produto.categoria_id}"
-        ).pack(
-            anchor="w",
-            padx=20,
-            pady=3
-        )
-
-        ctk.CTkButton(
-            self.formulario,
-            text="Fechar",
-            width=120,
-            command=self.limpar_formulario
-        ).pack(
-            anchor="w",
-            padx=20,
-            pady=(10, 15)
-        )
-
-    # ==================================================
     # EDITAR
     # ==================================================
 
-    def mostrar_edicao(self):
+    def editar(self):
 
         self.limpar_formulario()
 
@@ -668,7 +521,7 @@ class ProdutoView:
         titulo.pack(
             anchor="w",
             padx=20,
-            pady=(15, 10)
+            pady=(10, 15)
         )
 
         entrada_id = ctk.CTkEntry(
@@ -678,62 +531,64 @@ class ProdutoView:
         )
 
         entrada_id.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
 
         entrada_nome = ctk.CTkEntry(
             self.formulario,
             width=350,
-            placeholder_text="Novo nome"
+            placeholder_text="Nome"
         )
 
         entrada_nome.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
 
         entrada_preco = ctk.CTkEntry(
             self.formulario,
             width=350,
-            placeholder_text="Novo preço"
+            placeholder_text="Preço"
         )
 
         entrada_preco.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
 
         entrada_quantidade = ctk.CTkEntry(
             self.formulario,
             width=350,
-            placeholder_text="Nova quantidade"
+            placeholder_text="Quantidade"
         )
 
         entrada_quantidade.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
 
-        nomes_categorias = self.carregar_categorias()
+        categorias = self.carregar_categorias()
 
-        categoria_selecionada = ctk.StringVar()
+        categoria_var = ctk.StringVar(
+            value="Selecione uma categoria"
+        )
 
         combo_categoria = ctk.CTkComboBox(
             self.formulario,
             width=350,
-            variable=categoria_selecionada,
-            values=nomes_categorias
+            values=categorias,
+            variable=categoria_var
         )
 
         combo_categoria.pack(
+            anchor="w",
             padx=20,
-            pady=5,
-            anchor="w"
+            pady=5
         )
 
         botoes = ctk.CTkFrame(
@@ -744,10 +599,10 @@ class ProdutoView:
         botoes.pack(
             anchor="w",
             padx=20,
-            pady=(10, 15)
+            pady=15
         )
 
-        def realizar_edicao():
+        def salvar():
 
             try:
 
@@ -785,8 +640,8 @@ class ProdutoView:
 
                 return
 
-            categoria_id = self.encontrar_categoria_id(
-                categoria_selecionada.get()
+            categoria_id = self.obter_categoria_id(
+                categoria_var.get()
             )
 
             if categoria_id is None:
@@ -820,9 +675,9 @@ class ProdutoView:
 
                 else:
 
-                    messagebox.showerror(
-                        "Erro",
-                        "Não foi possível atualizar o produto."
+                    messagebox.showwarning(
+                        "Atenção",
+                        "Produto não encontrado."
                     )
 
             except Exception as erro:
@@ -836,7 +691,7 @@ class ProdutoView:
             botoes,
             text="Salvar",
             width=120,
-            command=realizar_edicao
+            command=salvar
         ).pack(
             side="left",
             padx=(0, 10)
@@ -856,7 +711,7 @@ class ProdutoView:
     # EXCLUIR
     # ==================================================
 
-    def mostrar_exclusao(self):
+    def excluir(self):
 
         self.limpar_formulario()
 
@@ -869,19 +724,19 @@ class ProdutoView:
         titulo.pack(
             anchor="w",
             padx=20,
-            pady=(15, 10)
+            pady=(10, 15)
         )
 
-        entrada = ctk.CTkEntry(
+        entrada_id = ctk.CTkEntry(
             self.formulario,
             width=350,
             placeholder_text="ID do produto"
         )
 
-        entrada.pack(
+        entrada_id.pack(
+            anchor="w",
             padx=20,
-            pady=10,
-            anchor="w"
+            pady=5
         )
 
         botoes = ctk.CTkFrame(
@@ -892,7 +747,7 @@ class ProdutoView:
         botoes.pack(
             anchor="w",
             padx=20,
-            pady=(5, 15)
+            pady=15
         )
 
         def realizar_exclusao():
@@ -900,7 +755,7 @@ class ProdutoView:
             try:
 
                 id_produto = int(
-                    entrada.get().strip()
+                    entrada_id.get().strip()
                 )
 
             except ValueError:
@@ -914,11 +769,11 @@ class ProdutoView:
 
             try:
 
-                produto = self.controller.buscar(
+                produto = self.controller.buscar_por_id(
                     id_produto
                 )
 
-                if not produto:
+                if produto is None:
 
                     messagebox.showwarning(
                         "Não encontrado",
@@ -929,9 +784,9 @@ class ProdutoView:
 
                 confirmar = messagebox.askyesno(
                     "Confirmar exclusão",
-                    f"Tem certeza que deseja excluir:\n\n"
+                    f"Tem certeza que deseja excluir?\n\n"
                     f"ID: {produto.id}\n"
-                    f"Nome: {produto.nome}?"
+                    f"Nome: {produto.nome}"
                 )
 
                 if not confirmar:
@@ -953,9 +808,9 @@ class ProdutoView:
 
                 else:
 
-                    messagebox.showerror(
-                        "Erro",
-                        "Não foi possível excluir o produto."
+                    messagebox.showwarning(
+                        "Atenção",
+                        "Produto não encontrado."
                     )
 
             except Exception as erro:

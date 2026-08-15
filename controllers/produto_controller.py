@@ -24,5 +24,8 @@ class ProdutoController:
     def buscar(self, nome):
         return self.repository.buscar(nome)
     
+    def busca_por_id(self,id): 
+        return self.repository.busca_por_id(id)
+    
     def contar(self):
         return self.repository.contar()
