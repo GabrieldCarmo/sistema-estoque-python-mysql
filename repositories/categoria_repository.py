@@ -56,14 +56,17 @@ class CategoriaRepository:
         conexao = conectar()
         cursor = conexao.cursor()
 
-        sql = "DELETE FROM categoria WHERE id=%s"
-        valores = (id,)
-        cursor.execute(sql,valores)
+        sql = "DELETE FROM categoria WHERE id = %s"
+        cursor.execute(sql, (id,))
+
+        quantidade_excluida = cursor.rowcount
 
         conexao.commit()
 
         cursor.close()
         conexao.close()
+
+        return quantidade_excluida > 0
 
     def contar(self):
         conexao = conectar()
@@ -71,4 +74,4 @@ class CategoriaRepository:
 
         cursor.execute("SELECT COUNT(*) FROM categoria")
 
-        quantidade = cursor.fetchone()[0]
+        return cursor.fetchone()[0]
