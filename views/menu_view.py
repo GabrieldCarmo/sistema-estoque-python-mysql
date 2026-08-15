@@ -165,7 +165,9 @@ class MenuView:
             padx=30,
             pady=40
         )
-
+        
+        quantidade_categorias = self.categoria_controller.contar()
+        
         self.criar_card(
             cards,
             "Produtos",
@@ -176,7 +178,7 @@ class MenuView:
         self.criar_card(
             cards,
             "Categorias",
-            "0",
+            quantidade_categorias,
             1
         )
 
