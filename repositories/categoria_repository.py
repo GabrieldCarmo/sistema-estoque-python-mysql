@@ -64,3 +64,11 @@ class CategoriaRepository:
 
         cursor.close()
         conexao.close()
+
+    def contar(self):
+        conexao = conectar()
+        cursor = conexao.cursor()
+
+        cursor.execute("SELECT COUNT(*) FROM categoria")
+
+        quantidade = cursor.fetchone()[0]

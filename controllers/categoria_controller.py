@@ -19,3 +19,7 @@ class CategoriaController:
 
     def excluir(self, id):
         return self.repository.excluir(id)
+
+    def contar(self):
+        return self.repository.contar()
+
